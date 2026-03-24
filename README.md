@@ -1,0 +1,99 @@
+# opencode-tmux
+
+Neovim plugin that talks to [OpenCode](https://github.com/anomalyco/opencode) through a tmux pane instead of embedding a terminal.
+
+Inspired by [opencode.nvim](https://github.com/nickjvandyke/opencode.nvim) by Nick van Dyke. Great plugin, but it uses a Neovim terminal buffer and I couldn't stand that, so I made my own that uses tmux instead. If you want the same idea but with tmux, here you go.
+
+## Install
+
+With [lazy.nvim](https://github.com/folke/lazy.nvim), use the latest stable release:
+
+```lua
+{
+  "simonwinther/opencode-tmux.nvim",
+  name = "opencode-tmux",
+  version = "*", -- use latest stable release (recommended)
+  lazy = false,
+  config = function()
+    local oc = require("opencode-tmux")
+    oc.setup({
+      port = 4096,
+      split = "h", -- "h" side-by-side, "v" stacked
+      size = 40,   -- pane size in %
+    })
+
+    vim.keymap.set("n", "<leader>oo", oc.tmux_toggle, { desc = "Toggle OpenCode pane" })
+    vim.keymap.set("n", "go", oc.send_line, { desc = "Send line to OpenCode" })
+    vim.keymap.set("v", "go", function()
+      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "x", false)
+      vim.defer_fn(oc.send_selection, 10)
+    end, { desc = "Send selection to OpenCode" })
+    vim.keymap.set("n", "<leader>oB", oc.send_buffer, { desc = "Send buffer with prompt" })
+    vim.keymap.set("n", "<leader>op", function()
+      oc.select_prompt(oc.current_line_context())
+    end, { desc = "Pick a prompt" })
+    vim.keymap.set("v", "<leader>op", function()
+      vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "x", false)
+      vim.defer_fn(function() oc.select_prompt(oc.visual_selection_context()) end, 10)
+    end, { desc = "Pick a prompt (selection)" })
+    vim.keymap.set("n", "<leader>oa", function()
+      oc.ask({ submit = true, this_ctx = oc.current_line_context() })
+    end, { desc = "Ask OpenCode" })
+  end,
+}
+```
+
+If you want to hack on it locally, clone the repo and point lazy to it:
+
+```lua
+{
+  dir = "~/dev/opencode-tmux",
+  -- same config as above
+}
+```
+
+## What it does
+
+`<leader>oo` opens OpenCode in a tmux split with `--port 4096`. Everything else talks to it over HTTP.
+
+`go` appends the current line (or visual selection) to the OpenCode prompt with file path and line numbers. You can hit `go` on multiple lines to build up context before submitting from OpenCode.
+
+`<leader>op` opens a prompt picker (explain, review, fix, optimize, etc.). Placeholders like `@this`, `@buffer`, `@diagnostics`, `@diff` get resolved to actual editor content before sending.
+
+`<leader>oB` sends the whole buffer with a free-form prompt. `<leader>oa` is a blank free-form input.
+
+When you quit Neovim, the OpenCode pane and process get cleaned up automatically.
+
+## Placeholders
+
+`@this` -- current line or visual selection
+`@buffer` -- entire buffer
+`@diagnostics` -- LSP diagnostics for the current buffer
+`@diff` -- `git diff` output
+
+These are resolved client-side before sending to OpenCode.
+
+## Built-in prompts
+
+explain, review, fix, optimize, document, implement, test, diagnostics, diff.
+
+Add your own in setup:
+
+```lua
+oc.setup({
+  prompts = {
+    refactor = { prompt = "Refactor @this for clarity", submit = true },
+  },
+})
+```
+
+## Requirements
+
+- Neovim 0.10+
+- tmux
+- [OpenCode](https://github.com/anomalyco/opencode) CLI
+- curl
+
+## License
+
+MIT
