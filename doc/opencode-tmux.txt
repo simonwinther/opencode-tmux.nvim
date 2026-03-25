@@ -33,32 +33,55 @@ release:
       "simonwinther/opencode-tmux.nvim",
       name = "opencode-tmux",
       version = "*", -- use latest stable release (recommended)
-      lazy = false,
+    
+      keys = {
+        {
+          "<leader>oo",
+          function()
+            require("opencode-tmux").tmux_toggle()
+          end,
+          mode = { "n", "v" },
+          desc = "Toggle OpenCode pane",
+        },
+        {
+          "go",
+          function()
+            require("opencode-tmux").send()
+          end,
+          mode = { "n", "v" },
+          desc = "Send to OpenCode",
+        },
+        {
+          "<leader>oB",
+          function()
+            require("opencode-tmux").send_buffer()
+          end,
+          desc = "Send buffer with prompt",
+        },
+        {
+          "<leader>op",
+          function()
+            require("opencode-tmux").select_prompt()
+          end,
+          mode = { "n", "v" },
+          desc = "Pick a prompt",
+        },
+        {
+          "<leader>oa",
+          function()
+            require("opencode-tmux").ask({ submit = true })
+          end,
+          mode = { "n", "v" },
+          desc = "Ask OpenCode",
+        },
+      },
+    
       config = function()
-        local oc = require("opencode-tmux")
-        oc.setup({
+        require("opencode-tmux").setup({
           port = 4096,
           split = "h", -- "h" side-by-side, "v" stacked
           size = 40,   -- pane size in %
         })
-    
-        vim.keymap.set("n", "<leader>oo", oc.tmux_toggle, { desc = "Toggle OpenCode pane" })
-        vim.keymap.set("n", "go", oc.send_line, { desc = "Send line to OpenCode" })
-        vim.keymap.set("v", "go", function()
-          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "x", false)
-          vim.defer_fn(oc.send_selection, 10)
-        end, { desc = "Send selection to OpenCode" })
-        vim.keymap.set("n", "<leader>oB", oc.send_buffer, { desc = "Send buffer with prompt" })
-        vim.keymap.set("n", "<leader>op", function()
-          oc.select_prompt(oc.current_line_context())
-        end, { desc = "Pick a prompt" })
-        vim.keymap.set("v", "<leader>op", function()
-          vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "x", false)
-          vim.defer_fn(function() oc.select_prompt(oc.visual_selection_context()) end, 10)
-        end, { desc = "Pick a prompt (selection)" })
-        vim.keymap.set("n", "<leader>oa", function()
-          oc.ask({ submit = true, this_ctx = oc.current_line_context() })
-        end, { desc = "Ask OpenCode" })
       end,
     }
 <
