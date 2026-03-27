@@ -73,8 +73,9 @@ With [lazy.nvim](https://github.com/folke/lazy.nvim), use the latest stable rele
   config = function()
     require("opencode-tmux").setup({
       port = 4096,
-      split = "h", -- "h" side-by-side, "v" stacked
-      size = 40,   -- pane size in %
+      split = "h",             -- "h" side-by-side, "v" stacked
+      size = 40,               -- pane size in %
+      compact_context = false, -- skip code block fences to save tokens
     })
   end,
 }
@@ -102,6 +103,8 @@ If you want to hack on it locally, clone the repo and point lazy to it:
 `<leader>os` submits whatever is currently in the OpenCode prompt. Handy when you've built up context with `go` and want to fire it off without switching panes.
 
 `<leader>oc` clears the current OpenCode prompt without submitting it. Useful when you've built up context with `go` and want to start over. 
+
+Set `compact_context = true` in setup to skip code block fences when sending context. Same file + line header, just without the `` ```lang `` wrapper. Saves tokens on the input side.
 
 When you quit Neovim, the OpenCode pane and process get cleaned up automatically.
 

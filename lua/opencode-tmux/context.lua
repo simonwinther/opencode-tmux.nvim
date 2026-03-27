@@ -5,6 +5,7 @@ local M = {}
 
 -- take some lines and wrap them in a code block with file + line info
 -- so we have both the snippet and where it came from
+-- if compact_context is on, skip the code block fences to save tokens
 ---@param lines string[]
 ---@param filepath string
 ---@param start_line number  1-indexed
@@ -19,8 +20,12 @@ function M.format(lines, filepath, start_line)
 	else
 		range = ("L%d-%d"):format(start_line, end_line)
 	end
-	local code = table.concat(lines, "\n")
-	return ("From `%s:%s`\n```%s\n%s\n```"):format(rel, range, ft, code)
+	local msg = ("From `%s:%s`"):format(rel, range)
+	if not require("opencode-tmux").config.compact_context then
+		local code = table.concat(lines, "\n")
+		msg = msg .. ("\n```%s\n%s\n```"):format(ft, code)
+	end
+	return msg
 end
 
 -- grab the current line and format it with file + line info
