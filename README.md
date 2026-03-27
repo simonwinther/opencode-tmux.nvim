@@ -54,6 +54,13 @@ With [lazy.nvim](https://github.com/folke/lazy.nvim), use the latest stable rele
       mode = { "n", "v" },
       desc = "Ask OpenCode",
     },
+    {
+      "<leader>oc",
+      function()
+        require("opencode-tmux").clear_prompt()
+      end,
+      desc = "Clear OpenCode prompt",
+    },
   },
 
   config = function()
@@ -84,6 +91,8 @@ If you want to hack on it locally, clone the repo and point lazy to it:
 `<leader>op` opens a prompt picker (explain, review, fix, optimize, etc.). Placeholders like `@this`, `@buffer`, `@diagnostics`, `@diff` get resolved to actual editor content before sending.
 
 `<leader>oB` sends the whole buffer with a free-form prompt. `<leader>oa` is a blank free-form input.
+
+`<leader>oc` clears the current OpenCode prompt without submitting it. Useful when you want to start over or just clear the pane.
 
 When you quit Neovim, the OpenCode pane and process get cleaned up automatically.
 

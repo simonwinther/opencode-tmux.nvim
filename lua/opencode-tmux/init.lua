@@ -54,6 +54,18 @@ function M.ask(opts)
 	require("opencode-tmux.prompts").ask(opts)
 end
 
+-- clear the current prompt in the opencode TUI
+function M.clear_prompt()
+	local server = require("opencode-tmux.server")
+	server.ensure(function()
+		server.clear_prompt(function(ok)
+			if ok then
+				vim.notify("OpenCode: prompt cleared", vim.log.levels.INFO)
+			end
+		end)
+	end)
+end
+
 -- tmux
 
 function M.tmux_open()
