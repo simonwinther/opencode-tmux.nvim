@@ -54,6 +54,18 @@ function M.ask(opts)
 	require("opencode-tmux.prompts").ask(opts)
 end
 
+-- submit whatever is currently in the opencode prompt
+function M.submit_prompt()
+	local server = require("opencode-tmux.server")
+	server.ensure(function()
+		server.submit_prompt(function(ok)
+			if ok then
+				vim.notify("OpenCode: prompt submitted", vim.log.levels.INFO)
+			end
+		end)
+	end)
+end
+
 -- clear the current prompt in the opencode TUI
 function M.clear_prompt()
 	local server = require("opencode-tmux.server")

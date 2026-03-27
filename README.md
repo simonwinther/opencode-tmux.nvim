@@ -55,6 +55,13 @@ With [lazy.nvim](https://github.com/folke/lazy.nvim), use the latest stable rele
       desc = "Ask OpenCode",
     },
     {
+      "<leader>os",
+      function()
+        require("opencode-tmux").submit_prompt()
+      end,
+      desc = "Submit OpenCode prompt",
+    },
+    {
       "<leader>oc",
       function()
         require("opencode-tmux").clear_prompt()
@@ -92,7 +99,9 @@ If you want to hack on it locally, clone the repo and point lazy to it:
 
 `<leader>oB` sends the whole buffer with a free-form prompt. `<leader>oa` is a blank free-form input.
 
-`<leader>oc` clears the current OpenCode prompt without submitting it. Useful when you want to start over or just clear the pane.
+`<leader>os` submits whatever is currently in the OpenCode prompt. Handy when you've built up context with `go` and want to fire it off without switching panes.
+
+`<leader>oc` clears the current OpenCode prompt without submitting it. Useful when you've built up context with `go` and want to start over. 
 
 When you quit Neovim, the OpenCode pane and process get cleaned up automatically.
 
