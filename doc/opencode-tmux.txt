@@ -1,4 +1,4 @@
-*opencode-tmux.txt*       For Neovim >= 0.10.0      Last change: 2026 March 27
+*opencode-tmux.txt*       For Neovim >= 0.10.0      Last change: 2026 March 28
 
 ==============================================================================
 Table of Contents                            *opencode-tmux-table-of-contents*
