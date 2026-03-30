@@ -10,6 +10,7 @@ M.config = {
 	split = "h", -- h = horizontal (side-by-side), v = vertical (stacked)
 	size = 40, -- percent of screen for the opencode pane
 	compact_context = false, -- skip code block fences to save tokens
+	code_fence = "backticks", -- "backticks", "xml", or { open = "...", close = "..." }
 
 	---@type table<string, { prompt: string, submit?: boolean }>
 	prompts = {
@@ -104,6 +105,7 @@ end
 ---@field split? string   "h" for side-by-side, "v" for stacked (default "h")
 ---@field size? number    Pane size in percent (default 40)
 ---@field compact_context? boolean  Skip code block fences in context to save tokens (default false)
+---@field code_fence? string|{open: string, close: string}  Code block style: "backticks", "xml", or custom { open, close } (default "backticks")
 ---@field prompts? table<string, { prompt: string, submit?: boolean }>
 
 ---@param config? OpencodeTmuxConfig

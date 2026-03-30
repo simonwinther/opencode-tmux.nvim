@@ -3,6 +3,33 @@
 
 local M = {}
 
+-- wrap code in whatever fence style the user configured
+-- returns "" when compact_context is on (no fences at all)
+-- supports "backticks" (default), "xml", or a custom { open, close } table
+-- the open pattern can contain %s which gets replaced with the language
+---@param lang string   e.g. "lua", "diff", "python"
+---@param code string   the raw code to wrap
+---@return string
+local function fence(lang, code)
+	if require("opencode-tmux").config.compact_context then
+		return ""
+	end
+	local cfg = require("opencode-tmux").config.code_fence or "backticks"
+	local open_pat, close_pat
+	if type(cfg) == "table" then
+		open_pat = cfg.open or "```%s"
+		close_pat = cfg.close or "```"
+	elseif cfg == "xml" then
+		open_pat = '<code language="%s">'
+		close_pat = "</code>"
+	else -- "backticks" or anything else
+		open_pat = "```%s"
+		close_pat = "```"
+	end
+	local open_str = open_pat:find("%%s") and open_pat:format(lang) or open_pat
+	return ("\n%s\n%s\n%s"):format(open_str, code, close_pat)
+end
+
 -- take some lines and wrap them in a code block with file + line info
 -- so we have both the snippet and where it came from
 -- if compact_context is on, skip the code block fences to save tokens
@@ -21,10 +48,7 @@ function M.format(lines, filepath, start_line)
 		range = ("L%d-%d"):format(start_line, end_line)
 	end
 	local msg = ("From `%s:%s`"):format(rel, range)
-	if not require("opencode-tmux").config.compact_context then
-		local code = table.concat(lines, "\n")
-		msg = msg .. ("\n```%s\n%s\n```"):format(ft, code)
-	end
+	msg = msg .. fence(ft, table.concat(lines, "\n"))
 	return msg
 end
 
@@ -105,13 +129,19 @@ end
 
 -- get the current git diff and return it as a diff block
 -- if there is no diff, or the command fails, just return a small placeholder
+-- respects compact_context and code_fence settings like everything else
 ---@return string
 function M.diff()
 	local out = vim.fn.system("git diff")
 	if vim.v.shell_error ~= 0 or out == "" then
 		return "(no git diff)"
 	end
-	return "```diff\n" .. vim.trim(out) .. "\n```"
+	local trimmed = vim.trim(out)
+	local fenced = fence("diff", trimmed)
+	if fenced == "" then
+		return trimmed
+	end
+	return fenced
 end
 
 -- replace @placeholders inside a prompt with their actual context

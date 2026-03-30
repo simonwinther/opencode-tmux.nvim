@@ -76,6 +76,7 @@ With [lazy.nvim](https://github.com/folke/lazy.nvim), use the latest stable rele
       split = "h",             -- "h" side-by-side, "v" stacked
       size = 40,               -- pane size in %
       compact_context = false, -- skip code block fences to save tokens
+      code_fence = "backticks", -- "backticks", "xml", or { open, close }
     })
   end,
 }
@@ -105,6 +106,18 @@ If you want to hack on it locally, clone the repo and point lazy to it:
 `<leader>oc` clears the current OpenCode prompt without submitting it. Useful when you've built up context with `go` and want to start over. 
 
 Set `compact_context = true` in setup to skip code block fences when sending context. Same file + line header, just without the `` ```lang `` wrapper. Saves tokens on the input side.
+
+`code_fence` controls how code blocks are wrapped when sending context. Defaults to `"backticks"` (standard markdown triple backticks). Set it to `"xml"` for XML-style tags, or pass a table with your own `open` and `close` patterns. Use `%s` in the open pattern where the language should go.
+
+```lua
+-- xml tags: <code language="lua">...</code>
+code_fence = "xml"
+
+-- custom format: use %s for the language identifier
+code_fence = { open = "<source lang=%s>", close = "</source>" }
+```
+
+Some models respond better to XML fencing than markdown backticks. If you're working with a model that prefers a different format, this lets you match it without changing anything else.
 
 When you quit Neovim, the OpenCode pane and process get cleaned up automatically.
 
