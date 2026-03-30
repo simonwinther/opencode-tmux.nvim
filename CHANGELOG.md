@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/simonwinther/opencode-tmux.nvim/compare/v0.1.1...v0.1.2) (2026-03-30)
+
+
+### Features
+
+* **context:** add configurable code fence format ([b59180f](https://github.com/simonwinther/opencode-tmux.nvim/commit/b59180fa6a5b9d8f19d81c5a33d90bbd8e5561bf))
+
 ## [0.1.1](https://github.com/simonwinther/opencode-tmux.nvim/compare/v0.1.0...v0.1.1) (2026-03-30)
 
 
