@@ -31,6 +31,9 @@ M.config = {
 -- figures out what to send based on the current mode
 function M.send()
 	local ctx = require("opencode-tmux.context").this()
+	if not ctx then
+		return
+	end
 	require("opencode-tmux.prompts").send(ctx)
 end
 

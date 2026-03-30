@@ -30,9 +30,12 @@ end
 
 -- grab the current line and format it with file + line info
 -- basically for the case where we just want the thing under the cursor
----@return string
+---@return string?
 function M.current_line()
 	local line = vim.api.nvim_get_current_line()
+	if vim.trim(line) == "" then
+		return nil
+	end
 	local filepath = vim.api.nvim_buf_get_name(0)
 	local row = vim.api.nvim_win_get_cursor(0)[1]
 	return M.format({ line }, filepath, row)
@@ -41,7 +44,7 @@ end
 -- grab the current visual selection and format it the same way
 -- reads the live visual range directly so callers don't need feedkeys or defer_fn
 -- exits visual mode after reading so the user lands back in normal mode
----@return string
+---@return string?
 function M.visual_selection()
 	local anchor = vim.fn.getpos("v")
 	local cursor = vim.fn.getpos(".")
@@ -50,12 +53,22 @@ function M.visual_selection()
 	local lines = vim.api.nvim_buf_get_lines(0, start_row - 1, end_row, false)
 	local filepath = vim.api.nvim_buf_get_name(0)
 	vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "nx", false)
+	local all_empty = true
+	for _, l in ipairs(lines) do
+		if vim.trim(l) ~= "" then
+			all_empty = false
+			break
+		end
+	end
+	if all_empty then
+		return nil
+	end
 	return M.format(lines, filepath, start_row)
 end
 
 -- return the current line or visual selection depending on what mode we are in
 -- so callers don't need to care about mode at all
----@return string
+---@return string?
 function M.this()
 	local mode = vim.api.nvim_get_mode().mode
 	if mode == "v" or mode == "V" then
