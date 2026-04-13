@@ -129,6 +129,7 @@ When you quit Neovim, the OpenCode pane and process get cleaned up automatically
 `@diff` -- `git diff` output
 
 These are resolved client-side before sending to OpenCode.
+Unknown placeholders are left unchanged so OpenCode can still handle them, but opencode-tmux warns the first time it sees one to help catch typos in custom prompts.
 
 ## Built-in prompts
 
