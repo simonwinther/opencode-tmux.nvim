@@ -3,6 +3,8 @@
 
 local M = {}
 
+local warned_unknown_placeholders = {}
+
 -- wrap code in whatever fence style the user configured
 -- returns "" when compact_context is on (no fences at all)
 -- supports "backticks" (default), "xml", or a custom { open, close } table
@@ -144,6 +146,29 @@ function M.diff()
 	return fenced
 end
 
+local function warn_unknown_placeholders(placeholders)
+	local fresh = {}
+	for _, placeholder in ipairs(placeholders) do
+		if not warned_unknown_placeholders[placeholder] then
+			warned_unknown_placeholders[placeholder] = true
+			table.insert(fresh, placeholder)
+		end
+	end
+
+	if #fresh == 0 then
+		return
+	end
+
+	local message
+	if #fresh == 1 then
+		message = ("OpenCode: unknown placeholder %s left unchanged"):format(fresh[1])
+	else
+		message = ("OpenCode: unknown placeholders %s left unchanged"):format(table.concat(fresh, ", "))
+	end
+
+	vim.notify(message, vim.log.levels.WARN)
+end
+
 -- replace @placeholders inside a prompt with their actual context
 -- for example @this, @buffer, @diagnostics, or @diff
 ---@param text string
@@ -164,17 +189,27 @@ function M.resolve(text, this_ctx)
 			return M.diff()
 		end,
 	}
-	return (
-		text:gsub("@%w+", function(match)
-			local fn = replacements[match]
-			if fn then
-				return fn()
-			end
-			return match -- if we don't know the placeholder, then we just leave it for opencode to handle it
-			-- We could consider handling it differently, maybe by prompting the user with a message saying unknown placeholder.
-			-- If anyone reads this line, and wants to contribute, with this, then I wouldn't mind merging.
-		end)
-	)
+	local unknown = {}
+	local seen_unknown = {}
+	local resolved = text:gsub("@%w+", function(match)
+		local fn = replacements[match]
+		if fn then
+			return fn()
+		end
+
+		if not seen_unknown[match] then
+			seen_unknown[match] = true
+			table.insert(unknown, match)
+		end
+
+		return match
+	end)
+
+	if #unknown > 0 then
+		warn_unknown_placeholders(unknown)
+	end
+
+	return resolved
 end
 
 return M
